@@ -12,7 +12,8 @@ import {
   IonCol,
   IonImg,
 } from '@ionic/angular/standalone';
-import { PhotoService } from '../services/photo.service';
+import { ActionSheetController } from '@ionic/angular';
+import { PhotoService, UserPhoto } from '../services/photo.service';
 
 @Component({
   selector: 'app-tab2',
@@ -34,6 +35,9 @@ import { PhotoService } from '../services/photo.service';
 })
 export class Tab2Page implements OnInit {
   public readonly photoService: PhotoService = inject(PhotoService);
+  public readonly actionSheetController: ActionSheetController = inject(
+    ActionSheetController
+  );
 
   async ngOnInit() {
     await this.photoService.loadSaved();
@@ -41,5 +45,22 @@ export class Tab2Page implements OnInit {
 
   addPhotoToGallery() {
     this.photoService.addNewToGallery();
+  }
+
+  async showActionSheet(photo: UserPhoto, position: number) {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Photos',
+      buttons: [
+        {
+          text: 'Delete',
+          role: 'destructive',
+          icon: 'trash',
+          handler: () => {
+            this.photoService.deletePicture(photo, position);
+          },
+        },
+      ],
+    });
+    await actionSheet.present();
   }
 }
